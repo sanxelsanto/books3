@@ -1,0 +1,96 @@
+package code
+package snippet
+
+import net.liftweb._
+import http._
+import common._
+import util.Helpers._
+import scala.xml.{NodeSeq,Text}
+import model._
+import util._
+import net.liftweb.mapper._
+
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JE._
+
+
+class BooksForm extends StatefulSnippet with Loggable{
+
+  private var title = ""
+  private var description = ""
+
+  // capture from whence the user came so we
+  // can send them back
+  //private val whence = S.referer openOr "/"
+
+  private val book = Books.create
+
+  def dispatch = {
+    case "add" => add _
+  }
+
+
+  def add( xhtml: NodeSeq ): NodeSeq = {
+
+        def doProcess() {
+          val book : Books =  Books.create.title(title)
+                                                .description(description)
+                                                .timecreated(Helpers.timeNow.getTime)
+                                                .published(true)
+          book.validate match{
+             case Nil =>
+                S.notice("book is add")
+                book.saveMe
+                //S.redirectTo("/")
+             case errors : List[FieldError] =>
+                S.error(errors)
+          }
+        }
+
+        def check_title(in:String): JsCmd = {
+
+           val title = in.trim
+           val book : Books =  Books.create.title(title)
+
+           book.title.validate match{
+              case Nil =>
+                 S.notice( title + " is valid" )
+                 
+                 JE.JsRaw(""" 
+                             $("books_title").empty();
+                             $("#title_message").html("OK");
+                 """).cmd
+                 
+              case errors : List[FieldError] =>
+                 JE.JsRaw(""" $("#title_message").remove(); """).cmd//<span id="title_message"/>
+                 S.error(errors)
+           }
+
+        }
+
+        def check_description(in:String): JsCmd = {
+
+           val description = in
+           val book : Books =  Books.create.description(description)
+
+           book.description.validate match{
+              case Nil =>
+                 S.notice( description + " is valid" )
+              case errors : List[FieldError] =>
+                 S.error(errors)
+           }
+           Noop
+        }
+
+        def cssSel =
+          "name=title" #> SHtml.onEvents("onchange", "onblur", "keyup")( check_title _ )(JsCmds.FocusOnLoad(SHtml.text(title, title = _, "id" -> "title", "class" -> "name"))) &
+          "name=description" #> SHtml.onEvents("onchange", "onblur", "keyup")( check_description _ )(SHtml.textarea(description, description = _)) &
+          "type=submit" #> SHtml.submit( "Add", doProcess, "class" -> "title")//, "disabled" -> "true" 
+
+        cssSel.apply(xhtml)
+
+  }
+
+
+}

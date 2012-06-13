@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+        <title>Home</title>
+    </head>
+    <body class="lift:content_id=main">
+        <div id="main" class="lift:surround?with=default;at=content">
+            <h2>Welcome to your project!</h2>
+            <p>
+                <span class="lift:helloWorld.howdy">
+                    Welcome to your Lift app at <span id="time">Time goes here</span>
+                </span>
+            </p>
+
+
+            <div class="lift:BooksForm.add?form=post">
+
+                <label for="title">Book Title</label>
+                <input id="title" name="title" class="text" type="text" /><br>
+                <p id="title_error" class=""></p>
+ 
+                <label for="title">Description Title</label>
+                <input id="description" name="description" class="text" type="text" /><br>
+                <p id="description_error" class=""></p>
+
+                <input type="submit" value="Submit" style="width: 60%"/>
+
+            </div>
+    </body>
+</html>
+
